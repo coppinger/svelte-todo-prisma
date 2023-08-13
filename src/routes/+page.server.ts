@@ -36,6 +36,17 @@ async function deleteTask(id: number) {
     });
 }
 
+async function editTask(id: number, input: string) {
+    await prisma.todo.update({
+        where: {
+            id: id,
+        },
+        data: {
+            task: input,
+        },
+    });
+}
+
 export const actions = {
     create: async (event) => {
         const data = await event.request.formData();
@@ -57,11 +68,19 @@ export const actions = {
 
     toggle: async (event) => {
         const data = await event.request.formData();
-        console.log(data.get("done"));
 
         const done = data.get("done") === "on";
         const id = parseInt(data.get("id") as string);
 
         return toggleDone(id, done);
+    },
+
+    edit: async (event) => {
+        const data = await event.request.formData();
+
+        return editTask(
+            parseInt(data.get("id") as string),
+            data.get("input") as string
+        );
     },
 } satisfies Actions;
